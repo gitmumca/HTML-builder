@@ -7,16 +7,26 @@ const { stdout } = process;
 function copyDir() {
   const fs = require('fs');
 
-  fs.readdir(pathNew, { withFileTypes: true }, function(err, items) {
-    if (err) throw err;      
-    items.forEach(function(el) {
-
-      fs.unlink(path.join(pathNew, el.name), (err) => {
-        if (err) throw err; 
-        stdout.write(`Файл успешно удален ${el.name}\n`);
-      });        
+  fs.open (pathNew, 'r', (err, fd) =>
+  {
+    if (err)
+    {
+      if (err.code === 'ENOENT')
+        return;
+      throw err;
+    }
+    
+    fs.readdir(pathNew, { withFileTypes: true }, function(err, items) {
+      if (err) throw err;      
+      items.forEach(function(el) {
+  
+        fs.unlink(path.join(pathNew, el.name), (err) => {
+          if (err) throw err; 
+          stdout.write(`Файл успешно удален ${el.name}\n`);
+        });        
+      });
     });
-  });
+  });  
 
   fs.promises.mkdir(pathNew, { recursive: true }).then(function() {
 
